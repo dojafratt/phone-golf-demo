@@ -90,11 +90,10 @@ const StyleTag = () => (
 
 // ─── Constants ────────────────────────────────────────────────────────────
 const PENALTIES = [
-  { key: "sandTraps",   label: "Sand Traps",          sub: "Doomscrolling sessions",            per: 1, unit: "per session" },
-  { key: "wrongClub",   label: "Wrong Club",          sub: "Social media first on open",        per: 1, unit: "per occurrence" },
-  { key: "badSwing",    label: "Bad Swing Etiquette", sub: "Opens from a social notification",  per: 1, unit: "+1 per 5", divisor: 5 },
-  { key: "waterHazard", label: "Water Hazard",        sub: "Post-midnight scrolling",           per: 2, unit: "+2 each" },
-  { key: "outOfBounds", label: "Out of Bounds",       sub: "Over daily screen-time goal",       per: 3, unit: "once, +3" },
+  { key: "sandTraps",   label: "Sand Traps",   sub: "Doomscrolling sessions",                 per: 1, unit: "per session" },
+  { key: "wrongClub",   label: "Wrong Club",   sub: "Social media first app used on open",    per: 1, unit: "+1 per 5", divisor: 5 },
+  { key: "waterHazard", label: "Water Hazard", sub: "Post-midnight scrolling",                per: 2, unit: "+2 each" },
+  { key: "outOfBounds", label: "Out of Bounds", sub: "Over daily screen-time goal",           per: 3, unit: "once, +3" },
 ];
 
 const GOOD_SHOTS = [
@@ -105,7 +104,7 @@ const GOOD_SHOTS = [
 ];
 
 const EMPTY_STATS = {
-  sandTraps: 0, wrongClub: 0, badSwing: 0, waterHazard: 0, outOfBounds: 0,
+  sandTraps: 0, wrongClub: 0, waterHazard: 0, outOfBounds: 0,
   rangeMinutes: 0, phoneFreeMeals: 0, cleanMorning: 0, eagleFocus: 0,
 };
 
@@ -113,8 +112,7 @@ const EMPTY_STATS = {
 function calcPenaltyStrokes(s = EMPTY_STATS) {
   return (
     (s.sandTraps   || 0) * 1 +
-    (s.wrongClub   || 0) * 1 +
-    Math.floor((s.badSwing || 0) / 5) * 1 +
+    Math.floor((s.wrongClub || 0) / 5) * 1 +
     (s.waterHazard || 0) * 2 +
     (s.outOfBounds || 0) * 3
   );
@@ -653,39 +651,43 @@ function FacilitatorView({
       </div>
 
       {/* Date navigator + par */}
-      <div className="paper text-[#0f1f1a] rounded-3xl p-6 mb-6 flex flex-wrap items-center gap-6 fade-up" style={{animationDelay:"0.05s"}}>
-        <div className="flex items-center gap-2">
-          <IconBtn onClick={() => setDate(shiftDate(date, -1))} title="Previous day" className="bg-[#1a4d3a] text-[#f8f4e9] hover:bg-[#2d6b4f]">
-            <ChevronLeft className="w-5 h-5"/>
-          </IconBtn>
-          <div className="px-3 min-w-[200px] text-center">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[#1a4d3a]/80 font-bold">Round date</div>
-            <div className="font-display text-xl italic">{formatDate(date)}</div>
+      <div className="paper text-[#0f1f1a] rounded-3xl p-6 mb-6 fade-up" style={{animationDelay:"0.05s"}}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-2 justify-center sm:justify-start">
+            <IconBtn onClick={() => setDate(shiftDate(date, -1))} title="Previous day" className="bg-[#1a4d3a] text-[#f8f4e9] hover:bg-[#2d6b4f]">
+              <ChevronLeft className="w-5 h-5"/>
+            </IconBtn>
+            <div className="px-3 min-w-[180px] text-center">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#1a4d3a]/80 font-bold">Round date</div>
+              <div className="font-display text-xl italic">{formatDate(date)}</div>
+            </div>
+            <IconBtn onClick={() => setDate(shiftDate(date, 1))} title="Next day" className="bg-[#1a4d3a] text-[#f8f4e9] hover:bg-[#2d6b4f]">
+              <ChevronRight className="w-5 h-5"/>
+            </IconBtn>
+            {date !== todayKey() && (
+              <button onClick={() => setDate(todayKey())} className="ml-2 text-[11px] uppercase tracking-[0.16em] font-bold text-[#1a4d3a]/90 hover:text-[#1a4d3a] whitespace-nowrap">
+                Today
+              </button>
+            )}
           </div>
-          <IconBtn onClick={() => setDate(shiftDate(date, 1))} title="Next day" className="bg-[#1a4d3a] text-[#f8f4e9] hover:bg-[#2d6b4f]">
-            <ChevronRight className="w-5 h-5"/>
-          </IconBtn>
-          <button onClick={() => setDate(todayKey())} className="ml-2 text-[11px] uppercase tracking-[0.16em] font-bold text-[#1a4d3a]/90 hover:text-[#1a4d3a]">
-            Today
-          </button>
-        </div>
 
-        <div className="flex-1 min-w-[240px] flex items-center gap-6 justify-end">
-          <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[#1a4d3a]/80 font-bold">Today's par</div>
-            <div className="font-display text-4xl italic leading-none mt-1">{par}</div>
-          </div>
-          <div className="h-12 w-px bg-[#1a4d3a]/25"/>
-          <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[#1a4d3a]/80 font-bold">Goal offset</div>
-            <div className="flex items-center gap-2 justify-end mt-1">
-              <button onClick={() => setGoalOffset(Math.max(0, goalOffset - 1))} className="h-7 w-7 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center">
-                <Minus className="w-3 h-3"/>
-              </button>
-              <span className="font-mono text-lg w-8 text-center font-bold">−{goalOffset}</span>
-              <button onClick={() => setGoalOffset(goalOffset + 1)} className="h-7 w-7 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center">
-                <Plus className="w-3 h-3"/>
-              </button>
+          <div className="flex items-center gap-6 justify-center sm:justify-end sm:flex-1">
+            <div className="text-center sm:text-right">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#1a4d3a]/80 font-bold">Today's par</div>
+              <div className="font-display text-4xl italic leading-none mt-1">{par}</div>
+            </div>
+            <div className="h-12 w-px bg-[#1a4d3a]/25"/>
+            <div className="text-center sm:text-right">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#1a4d3a]/80 font-bold">Goal offset</div>
+              <div className="flex items-center gap-2 justify-center sm:justify-end mt-1">
+                <button onClick={() => setGoalOffset(Math.max(0, goalOffset - 1))} className="h-7 w-7 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center">
+                  <Minus className="w-3 h-3"/>
+                </button>
+                <span className="font-mono text-lg w-8 text-center font-bold">−{goalOffset}</span>
+                <button onClick={() => setGoalOffset(goalOffset + 1)} className="h-7 w-7 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center">
+                  <Plus className="w-3 h-3"/>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -760,8 +762,8 @@ function FacilitatorView({
             return (
               <div key={m.id} className="paper text-[#0f1f1a] rounded-3xl shadow-xl overflow-hidden fade-up" style={{animationDelay:`${0.12 + i*0.04}s`}}>
                 {/* Row summary */}
-                <div className="p-5 flex items-center gap-5">
-                  <div className="h-14 w-14 rounded-full bg-[#1a4d3a] text-[#f8f4e9] flex items-center justify-center font-display text-xl italic shrink-0">
+                <div className="p-4 sm:p-5 flex items-center gap-3 sm:gap-5 flex-wrap">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-[#1a4d3a] text-[#f8f4e9] flex items-center justify-center font-display text-lg sm:text-xl italic shrink-0">
                     {INITIALS(m.name) || "?"}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -772,10 +774,10 @@ function FacilitatorView({
                         onChange={e => setEditingValue(e.target.value)}
                         onBlur={() => saveEdit(m.id)}
                         onKeyDown={e => { if (e.key === "Enter") saveEdit(m.id); if (e.key === "Escape") setEditingName(null); }}
-                        className="font-display text-2xl italic bg-transparent outline-none border-b-2 border-[#1a4d3a]/40 w-full text-[#0f1f1a]"
+                        className="font-display text-xl sm:text-2xl italic bg-transparent outline-none border-b-2 border-[#1a4d3a]/40 w-full text-[#0f1f1a]"
                       />
                     ) : (
-                      <div className="font-display text-2xl italic truncate cursor-text" onDoubleClick={() => startEdit(m)}>
+                      <div className="font-display text-xl sm:text-2xl italic truncate cursor-text" onDoubleClick={() => startEdit(m)}>
                         {m.name}
                       </div>
                     )}
@@ -787,11 +789,11 @@ function FacilitatorView({
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <Button variant="outline" onClick={() => onPresentScorecard(m.id)} className="hidden sm:inline-flex">
                       <Share2 className="inline w-3.5 h-3.5 mr-1.5"/>Card
                     </Button>
-                    <IconBtn onClick={() => startEdit(m)} className="bg-[#1a4d3a]/10 hover:bg-[#1a4d3a]/20" title="Rename">
+                    <IconBtn onClick={() => startEdit(m)} className="bg-[#1a4d3a]/10 hover:bg-[#1a4d3a]/20 hidden sm:flex" title="Rename">
                       <Edit3 className="w-4 h-4"/>
                     </IconBtn>
                     <IconBtn
@@ -813,8 +815,8 @@ function FacilitatorView({
 
                 {/* Expanded data entry */}
                 {expanded && (
-                  <div className="border-t hairline px-5 py-6 bg-[#f3ecd9]/60">
-                    <div className="grid md:grid-cols-2 gap-8">
+                  <div className="border-t hairline px-3 sm:px-5 py-6 bg-[#f3ecd9]/60 overflow-x-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-w-0">
                       <div>
                         <div className="text-[10px] uppercase tracking-[0.18em] font-bold text-[#b84226] mb-3">
                           Penalty shots
@@ -885,26 +887,26 @@ function CounterRow({ meta, value, onChange, tone, binary = false, steppedInput 
       <label className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/55 hover:bg-white/80 cursor-pointer transition-colors">
         <input
           type="checkbox" checked={!!value} onChange={e => onChange(e.target.checked ? 1 : 0)}
-          className="h-5 w-5 accent-[#1a4d3a]"
+          className="h-5 w-5 accent-[#1a4d3a] shrink-0"
         />
         <div className="flex-1 min-w-0">
           <div className="font-display italic text-base leading-tight">{meta.label}</div>
           <div className="text-[11px] text-[#1a4d3a]/90 truncate">{meta.sub}</div>
         </div>
-        <div className="text-[10px] font-mono uppercase tracking-wide font-bold whitespace-nowrap" style={{color:accent}}>{meta.unit}</div>
+        <div className="text-[10px] font-mono uppercase tracking-wide font-bold whitespace-nowrap shrink-0" style={{color:accent}}>{meta.unit}</div>
       </label>
     );
   }
   const step = steppedInput ? 30 : 1;
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/55 hover:bg-white/80 transition-colors">
-      <div className="flex-1 min-w-0">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2.5 rounded-xl bg-white/55 hover:bg-white/80 transition-colors">
+      <div className="flex-1 min-w-[120px]">
         <div className="font-display italic text-base leading-tight truncate">{meta.label}</div>
         <div className="text-[11px] text-[#1a4d3a]/90 truncate">{meta.sub}</div>
       </div>
-      <div className="text-[10px] font-mono uppercase tracking-wide font-bold whitespace-nowrap" style={{color:accent}}>{meta.unit}</div>
-      <div className="flex items-center gap-1 shrink-0">
-        <button onClick={() => onChange(Math.max(0, value - step))} className="h-7 w-7 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center">
+      <div className="flex items-center gap-2 ml-auto shrink-0">
+        <div className="text-[10px] font-mono uppercase tracking-wide font-bold whitespace-nowrap" style={{color:accent}}>{meta.unit}</div>
+        <button onClick={() => onChange(Math.max(0, value - step))} className="h-8 w-8 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center shrink-0">
           <Minus className="w-3 h-3"/>
         </button>
         <input
@@ -912,7 +914,7 @@ function CounterRow({ meta, value, onChange, tone, binary = false, steppedInput 
           onChange={e => onChange(Math.max(0, parseInt(e.target.value) || 0))}
           className="w-12 text-center font-mono font-bold bg-transparent outline-none text-[#0f1f1a]"
         />
-        <button onClick={() => onChange(value + step)} className="h-7 w-7 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center">
+        <button onClick={() => onChange(value + step)} className="h-8 w-8 rounded-full bg-[#1a4d3a]/15 hover:bg-[#1a4d3a]/25 flex items-center justify-center shrink-0">
           <Plus className="w-3 h-3"/>
         </button>
       </div>
